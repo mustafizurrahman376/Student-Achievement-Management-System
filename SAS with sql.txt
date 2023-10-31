@@ -1,0 +1,111 @@
+import sqlite3
+
+
+
+connection = sqlite3.connect("students.db")
+
+Cursor = connection.cursor()
+
+
+
+Cursor.execute("CREATE TABLE IF NOT EXISTS students (ID TEXT, name TEXT, gender TEXT, age INTEGER, math_score REAL, english_score REAL, computer_score REAL)")
+
+def InputAchievement():
+
+    ID = input("Enter student ID: ")
+    name = input("Enter student name: ")
+    gender = input("Enter student gender: ")
+    age = int(input("Enter student age: "))
+    math_score = float(input("Enter Math score: "))
+    english_score = float(input("Enter English score: "))
+    computer_score = float(input("Enter Computer score: "))
+
+    Cursor.execute("INSERT INTO students VALUES (?, ?, ?, ?, ?, ?, ?)", (ID, name, gender, age, math_score, english_score, computer_score))
+    connection.commit()
+
+def OutputAchievement():
+    Cursor.execute("SELECT * FROM students")
+    rows = Cursor.fetchall()
+
+    for row in rows:
+        ID, name, gender, age, math_score, english_score, computer_score = row
+        print("ID:", ID)
+        print("Name:", name)
+        print("Gender:", gender)
+        print("Age:", age)
+        print("Math score:", math_score)
+        print("English score:", english_score)
+        print("Computer score:", computer_score)
+        print("")
+
+def QueryScoresByID(ID):
+    Cursor.execute("SELECT math_score, english_score, computer_score FROM students WHERE ID = ?", (ID,))
+    row = Cursor.fetchone()
+    if row is None:
+        return None
+    else:
+        math_score, english_score, computer_score = row
+        return math_score, english_score, computer_score
+    
+def QueryScoresByName(name):
+    Cursor.execute("SELECT math_score, english_score, computer_score FROM students WHERE name = ?", (name,))
+    row = Cursor.fetchone()
+    if row is None:
+        return None
+    else:
+        math_score, english_score, computer_score = row
+        return math_score, english_score, computer_score
+    
+def UpdateAchievementByID(ID):
+    Cursor.execute("SELECT * FROM students WHERE ID = ?", (ID,))
+    row = Cursor.fetchone()
+    if row is None:
+        print("Student not found.")
+    else:
+        print("Student Found By ID.")
+        math_score = float(input("Enter updated Math score: "))
+        english_score = float(input("Enter updated English score: "))
+        computer_score = float(input("Enter updated Computer score: "))
+        Cursor.execute("UPDATE students SET math_score = ?, english_score = ?, computer_score = ? WHERE ID = ?", (math_score, english_score, computer_score, ID))
+        connection.commit()
+
+def UpdateAchievementByName(name):
+    Cursor.execute("SELECT * FROM students WHERE name = ?", (name,))
+    row = Cursor.fetchone()
+    if row is None:
+        print("Student not found.")
+    else:
+        print("Student Found By Name.")
+        math_score = float(input("Enter updated Math score: "))
+        english_score = float(input("Enter updated English score: "))
+        computer_score = float(input("Enter updated Computer score: "))
+        Cursor.execute("UPDATE students SET math_score = ?, english_score = ?, computer_score = ? WHERE name = ?", (math_score, english_score, computer_score, name))
+        connection.commit()
+
+def ComputeTotalAndAverageScores():
+    Cursor.execute("SELECT ID, name, math_score, english_score, computer_score FROM students")
+    rows = Cursor.fetchall()
+    for row in rows:
+        ID, name, math_score, english_score, computer_score = row
+        total_score = math_score + english_score + computer_score
+        average_score = total_score / 3
+        print("ID:", ID)
+        print("Name:", name)
+        print("Total score:", total_score)
+        print("Average score:", average_score)
+        print("")
+
+while True:
+    InputAchievement()
+    OutputAchievement()
+    UpdateAchievementByID(input("Enter ID to update: "))
+    OutputAchievement()
+    UpdateAchievementByName(input("Enter name to update: "))
+    OutputAchievement()
+    ComputeTotalAndAverageScores()
+    break
+
+connection.close()
+    
+
+
